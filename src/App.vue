@@ -46,7 +46,9 @@
                 CHD
               </span>
             </div>
-            <div class="text-sm text-red-600">Такой тикер уже добавлен</div>
+            <div class="text-sm text-red-600" v-if="duplicate">
+              Такой тикер уже добавлен
+            </div>
           </div>
         </div>
         <button
@@ -153,17 +155,22 @@ export default {
     return {
       ticker: "",
       tickers: [],
+      duplicate: false,
     };
   },
 
   methods: {
     add() {
+      this.duplicate = false;
       const newTicker = {
         name: this.ticker,
         price: "-",
       };
+      this.tickers.forEach((item) => {
+        if (item.name === this.ticker) this.duplicate = true;
+      });
       this.ticker = "";
-      return this.tickers.push(newTicker);
+      this.duplicate ? false : this.tickers.push(newTicker);
     },
     remove(idx) {
       return (this.tickers = this.tickers.filter(
