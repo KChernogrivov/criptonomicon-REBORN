@@ -22,21 +22,25 @@
               class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap"
             >
               <span
+                v-on:click="ticker = 'BTC'"
                 class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
               >
                 BTC
               </span>
               <span
+                v-on:click="ticker = 'DOGE'"
                 class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
               >
                 DOGE
               </span>
               <span
+                v-on:click="ticker = 'BCH'"
                 class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
               >
                 BCH
               </span>
               <span
+                v-on:click="ticker = 'CHD'"
                 class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
               >
                 CHD
@@ -70,18 +74,21 @@
       <hr class="w-full border-t border-gray-600 my-4" />
       <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
         <div
-          v-for="elem of tickers"
+          v-for="(elem, idx) of tickers"
           v-bind:key="elem"
           class="bg-white overflow-hidden shadow rounded-lg border-purple-800 border-solid cursor-pointer"
         >
           <div class="px-4 py-5 sm:p-6 text-center">
             <dt class="text-sm font-medium text-gray-500 truncate">
-              {{ elem }} - USD
+              {{ elem.name }} - USD
             </dt>
-            <dd class="mt-1 text-3xl font-semibold text-gray-900">1.11</dd>
+            <dd class="mt-1 text-3xl font-semibold text-gray-900">
+              {{ elem.price }}
+            </dd>
           </div>
           <div class="w-full border-t border-gray-200"></div>
           <button
+            v-on:click="remove(idx)"
             class="flex items-center justify-center font-medium w-full bg-gray-100 px-4 py-4 sm:px-6 text-md text-gray-500 hover:text-gray-600 hover:bg-gray-200 hover:opacity-20 transition-all focus:outline-none"
           >
             <svg
@@ -151,8 +158,17 @@ export default {
 
   methods: {
     add() {
-      this.tickers.push(this.ticker);
+      const newTicker = {
+        name: this.ticker,
+        price: "-",
+      };
       this.ticker = "";
+      return this.tickers.push(newTicker);
+    },
+    remove(idx) {
+      return (this.tickers = this.tickers.filter(
+        (t) => t !== this.tickers[idx]
+      ));
     },
   },
 };
