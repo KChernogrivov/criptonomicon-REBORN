@@ -177,6 +177,13 @@ export default {
       });
       this.ticker = "";
       this.duplicate ? false : this.tickers.push(newTicker);
+      setInterval(async () => {
+        const API = await fetch(
+          `https://min-api.cryptocompare.com/data/price?fsym=${newTicker.name}&tsyms=USD&api_key=089731e7430ffd7619ca1d87c73456cc94ddd3554e253972ae89271775853dee`
+        );
+        const data = await API.json();
+        this.tickers.find((t) => t.name === newTicker.name).price = data.USD;
+      }, 5000);
     },
     remove(elem) {
       elem === this.selectedTicker ? (this.selectedTicker = null) : false;
