@@ -1,4 +1,4 @@
-<template>
+<template xmlns:height="http://www.w3.org/1999/xhtml">
   <div class="container mx-auto flex flex-col items-center bg-gray-100 p-4">
     <div class="container">
       <section>
@@ -119,7 +119,12 @@
           {{ selectedTicker.name }} - USD
         </h3>
         <div class="flex items-end border-gray-600 border-b border-l h-64">
-          <div class="bg-purple-800 border w-10 h-24"></div>
+          <div
+            v-for="(column, idx) in normalizePriceGraph()"
+            v-bind:key="idx"
+            v-bind:style="{ height: `${column}%` }"
+            class="bg-purple-800 border w-10"
+          ></div>
         </div>
         <button
           @click="selectedTicker = null"
@@ -160,6 +165,7 @@ export default {
     return {
       ticker: "",
       tickers: [],
+      priceGraph: [],
       selectedTicker: null,
       duplicate: false,
     };
@@ -183,11 +189,21 @@ export default {
         );
         const data = await API.json();
         this.tickers.find((t) => t.name === newTicker.name).price = data.USD;
+        if (this.selectedTicker?.name === newTicker.name) {
+          this.priceGraph.push(data.USD);
+        }
       }, 5000);
     },
     remove(elem) {
       elem === this.selectedTicker ? (this.selectedTicker = null) : false;
       return (this.tickers = this.tickers.filter((t) => t !== elem));
+    },
+    normalizePriceGraph() {
+      const maxValue = Math.max(...this.priceGraph);
+      const minValue = Math.min(...this.priceGraph);
+      return this.priceGraph?.map(
+        (price) => 5 + ((price - minValue) * 95) / (maxValue - minValue)
+      );
     },
   },
 };
