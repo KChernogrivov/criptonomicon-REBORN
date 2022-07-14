@@ -78,7 +78,10 @@
         <div
           v-for="(elem, idx) of tickers"
           v-bind:key="idx"
-          @click.stop="this.selectedTicker = elem"
+          @click.stop="
+            this.selectedTicker = elem;
+            priceGraph = [];
+          "
           :class="{
             'border-4': this.selectedTicker === elem,
           }"
