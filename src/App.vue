@@ -22,28 +22,12 @@
               class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap"
             >
               <span
-                v-on:click="ticker = 'BTC'"
+                v-for="(el, idx) in adviceToken"
+                v-bind:key="idx"
+                v-on:click="ticker = el"
                 class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
               >
-                BTC
-              </span>
-              <span
-                v-on:click="ticker = 'DOGE'"
-                class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
-              >
-                DOGE
-              </span>
-              <span
-                v-on:click="ticker = 'BCH'"
-                class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
-              >
-                BCH
-              </span>
-              <span
-                v-on:click="ticker = 'CHD'"
-                class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
-              >
-                CHD
+                {{ el }}
               </span>
             </div>
             <div class="text-sm text-red-600" v-if="duplicate">
@@ -171,6 +155,8 @@ export default {
       priceGraph: [],
       selectedTicker: null,
       duplicate: false,
+      tokens: [],
+      adviceToken: [],
     };
   },
 
@@ -209,7 +195,24 @@ export default {
       );
     },
   },
+  created: async function () {
+    const TOKENS = await fetch(
+      "https://min-api.cryptocompare.com/data/all/coinlist?summary=true"
+    );
+    const data = await TOKENS.json();
+    Object.keys(data.Data).forEach((el) => {
+      this.tokens.push(el);
+    });
+  },
+  updated: function () {
+    this.adviceToken = [];
+    let i = 0;
+    Object.values(this.tokens).forEach((el) => {
+      if (el.includes(this.ticker) && i < 4) {
+        i++;
+        this.adviceToken.push(el);
+      }
+    });
+  },
 };
 </script>
-
-<style src="./app.css"></style>
