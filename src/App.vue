@@ -22,7 +22,7 @@
               class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap"
             >
               <span
-                v-for="(el, idx) in adviceToken"
+                v-for="(el, idx) in addAdviceTokens"
                 v-bind:key="idx"
                 v-on:click="ticker = el"
                 class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
@@ -156,7 +156,6 @@ export default {
       selectedTicker: null,
       duplicate: false,
       tokens: [],
-      adviceToken: [],
     };
   },
 
@@ -195,6 +194,19 @@ export default {
       );
     },
   },
+  computed: {
+    addAdviceTokens: function () {
+      let addAdviceTokens = [];
+      let i = 0;
+      Object.values(this.tokens).forEach((el) => {
+        if (el.includes(this.ticker) && i < 4) {
+          i++;
+          addAdviceTokens.push(el);
+        }
+      });
+      return addAdviceTokens;
+    },
+  },
   created: async function () {
     const TOKENS = await fetch(
       "https://min-api.cryptocompare.com/data/all/coinlist?summary=true"
@@ -202,16 +214,6 @@ export default {
     const data = await TOKENS.json();
     Object.keys(data.Data).forEach((el) => {
       this.tokens.push(el);
-    });
-  },
-  updated: function () {
-    this.adviceToken = [];
-    let i = 0;
-    Object.values(this.tokens).forEach((el) => {
-      if (el.includes(this.ticker) && i < 4) {
-        i++;
-        this.adviceToken.push(el);
-      }
     });
   },
 };
