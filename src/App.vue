@@ -197,13 +197,15 @@ export default {
   computed: {
     addAdviceTokens: function () {
       let addAdviceTokens = [];
-      let i = 0;
-      Object.values(this.tokens).forEach((el) => {
-        if (el.toLowerCase().includes(this.ticker.toLowerCase()) && i < 4) {
-          i++;
-          addAdviceTokens.push(el);
-        }
-      });
+      if (this.ticker) {
+        let i = 0;
+        Object.values(this.tokens).forEach((el) => {
+          if (el.toLowerCase().includes(this.ticker.toLowerCase()) && i < 4) {
+            i++;
+            addAdviceTokens.push(el);
+          }
+        });
+      }
       return addAdviceTokens;
     },
   },
