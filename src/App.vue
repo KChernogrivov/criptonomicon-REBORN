@@ -199,7 +199,7 @@ export default {
       let addAdviceTokens = [];
       let i = 0;
       Object.values(this.tokens).forEach((el) => {
-        if (el.includes(this.ticker) && i < 4) {
+        if (el.toLowerCase().includes(this.ticker.toLowerCase()) && i < 4) {
           i++;
           addAdviceTokens.push(el);
         }
