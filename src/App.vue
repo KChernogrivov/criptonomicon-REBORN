@@ -167,7 +167,7 @@ export default {
     Object.keys(data.Data).forEach((el) => {
       this.tokens.push(el);
     });
-    const tickersData = localStorage.getItem("criptonomicon-list");
+    const tickersData = localStorage.getItem("cryptonomicon-list");
     tickersData ? (this.tickers = JSON.parse(tickersData)) : false;
   },
 
@@ -183,7 +183,7 @@ export default {
       });
       this.ticker = "";
       this.duplicate ? false : this.tickers.push(newTicker);
-      localStorage.setItem("criptonomicon-list", JSON.stringify(this.tickers));
+      localStorage.setItem("cryptonomicon-list", JSON.stringify(this.tickers));
       setInterval(async () => {
         const API = await fetch(
           `https://min-api.cryptocompare.com/data/price?fsym=${newTicker.name}&tsyms=USD&api_key=089731e7430ffd7619ca1d87c73456cc94ddd3554e253972ae89271775853dee`
@@ -197,7 +197,11 @@ export default {
     },
     remove(elem) {
       elem === this.selectedTicker ? (this.selectedTicker = null) : false;
-      return (this.tickers = this.tickers.filter((t) => t !== elem));
+      this.tickers = this.tickers.filter((t) => t !== elem);
+      return localStorage.setItem(
+        "cryptonomicon-list",
+        JSON.stringify(this.tickers)
+      );
     },
     normalizePriceGraph() {
       const maxValue = Math.max(...this.priceGraph);
