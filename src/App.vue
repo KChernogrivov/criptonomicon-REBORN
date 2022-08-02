@@ -60,10 +60,14 @@
         Фильтр: <input v-model="filterTickers" />
         <button
           class="ml-4 my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          :disabled="this.page === 1"
+          @click="this.page--"
         >
           Назад</button
         ><button
+          @click="page++"
           class="ml-4 my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          :disabled="!hasNextPage"
         >
           Вперед
         </button>
@@ -169,6 +173,7 @@ export default {
       tokens: [],
       filterTickers: "",
       page: 1,
+      hasNextPage: true,
     };
   },
 
@@ -187,9 +192,17 @@ export default {
 
   methods: {
     filteredTickers() {
-      return this.tickers.filter((ticker) =>
+      const start = (this.page - 1) * 6;
+      const end = this.page * 6;
+      const filteredTickers = this.tickers.filter((ticker) =>
         ticker.name.includes(this.filterTickers.toUpperCase())
       );
+      this.hasNextPage = filteredTickers.length > end;
+      if (this.page * 6 > end) {
+        this.page = 1;
+        console.log(this.page * 6 > end);
+      }
+      return filteredTickers.slice(start, end);
     },
     subsribeToTicker(tickerName) {
       setInterval(async () => {
@@ -205,6 +218,7 @@ export default {
     },
     add() {
       this.duplicate = false;
+      this.filterTickers = "";
       const newTicker = {
         name: this.ticker,
         price: "-",
@@ -212,8 +226,10 @@ export default {
       this.tickers.forEach((item) => {
         if (item.name === this.ticker) this.duplicate = true;
       });
+      if (this.duplicate === false && this.ticker !== "") {
+        this.tickers.push(newTicker);
+      }
       this.ticker = "";
-      this.duplicate ? false : this.tickers.push(newTicker);
       localStorage.setItem("cryptonomicon-list", JSON.stringify(this.tickers));
       this.subsribeToTicker(newTicker.name);
     },
