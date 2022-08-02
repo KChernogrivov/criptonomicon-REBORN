@@ -56,11 +56,22 @@
           Добавить
         </button>
       </section>
-
+      <div>
+        Фильтр: <input v-model="filterTickers" />
+        <button
+          class="ml-4 my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+        >
+          Назад</button
+        ><button
+          class="ml-4 my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+        >
+          Вперед
+        </button>
+      </div>
       <hr class="w-full border-t border-gray-600 my-4" />
       <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
         <div
-          v-for="(elem, idx) of tickers"
+          v-for="(elem, idx) of filteredTickers()"
           v-bind:key="idx"
           @click.stop="
             this.selectedTicker = elem;
@@ -156,6 +167,8 @@ export default {
       selectedTicker: null,
       duplicate: false,
       tokens: [],
+      filterTickers: "",
+      page: 1,
     };
   },
 
@@ -173,6 +186,11 @@ export default {
   },
 
   methods: {
+    filteredTickers() {
+      return this.tickers.filter((ticker) =>
+        ticker.name.includes(this.filterTickers.toUpperCase())
+      );
+    },
     subsribeToTicker(tickerName) {
       setInterval(async () => {
         const API = await fetch(
