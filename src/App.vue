@@ -178,6 +178,15 @@ export default {
   },
 
   async created() {
+    const windowData = Object.fromEntries(
+      new URL(window.location).searchParams.entries()
+    );
+    if (windowData.filter) {
+      this.filterTickers = windowData.filter;
+    }
+    if (windowData.page) {
+      this.page = windowData.page;
+    }
     const TOKENS = await fetch(
       "https://min-api.cryptocompare.com/data/all/coinlist?summary=true"
     );
@@ -262,6 +271,23 @@ export default {
         });
       }
       return addAdviceTokens;
+    },
+  },
+  watch: {
+    filterTickers() {
+      this.page = 1;
+      window.history.pushState(
+        null,
+        document.title,
+        `${window.location.pathname}?filter=${this.filterTickers}&page=${this.page}`
+      );
+    },
+    page() {
+      window.history.pushState(
+        null,
+        document.title,
+        `${window.location.pathname}?filter=${this.filterTickers}&page=${this.page}`
+      );
     },
   },
 };
