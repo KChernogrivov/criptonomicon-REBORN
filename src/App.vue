@@ -260,6 +260,12 @@ export default {
         .filter((token) => token.includes(this.ticker))
         .slice(0, 4);
     },
+    pageStateOptions() {
+      return {
+        filterTickers: this.filterTickers,
+        page: this.page,
+      };
+    },
   },
   watch: {
     selectedTicker() {
@@ -278,17 +284,12 @@ export default {
     },
     filterTickers() {
       this.page = 1;
-      window.history.pushState(
-        null,
-        document.title,
-        `${window.location.pathname}?filter=${this.filterTickers}&page=${this.page}`
-      );
     },
-    page() {
+    pageStateOptions(value) {
       window.history.pushState(
         null,
         document.title,
-        `${window.location.pathname}?filter=${this.filterTickers}&page=${this.page}`
+        `${window.location.pathname}?filter=${value.filterTickers}&page=${value.page}`
       );
     },
   },
