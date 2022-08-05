@@ -22,7 +22,7 @@
               class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap"
             >
               <span
-                v-for="(el, idx) in addAdviceTokens"
+                v-for="(el, idx) in adviceTokens"
                 v-bind:key="idx"
                 v-on:click="ticker = el"
                 class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
@@ -30,7 +30,7 @@
                 {{ el }}
               </span>
             </div>
-            <div class="text-sm text-red-600" v-if="duplicate">
+            <div class="text-sm text-red-600" v-if="duplicateTicker">
               Такой тикер уже добавлен
             </div>
           </div>
@@ -77,10 +77,7 @@
         <div
           v-for="(elem, idx) of tickersInPage"
           v-bind:key="idx"
-          @click.stop="
-            this.selectedTicker = elem;
-            priceGraph = [];
-          "
+          @click.stop="this.selectedTicker = elem"
           :class="{
             'border-4': this.selectedTicker === elem,
           }"
@@ -122,7 +119,7 @@
         </h3>
         <div class="flex items-end border-gray-600 border-b border-l h-64">
           <div
-            v-for="(column, idx) in normalizePriceGraph()"
+            v-for="(column, idx) in normalizedPriceGraph"
             v-bind:key="idx"
             v-bind:style="{ height: `${column}%` }"
             class="bg-purple-800 border w-10"
@@ -167,7 +164,6 @@ export default {
     return {
       ticker: "",
       tickers: [],
-      duplicate: false,
       filterTickers: "",
       selectedTicker: null,
       priceGraph: [],
@@ -175,7 +171,6 @@ export default {
       page: 1,
     };
   },
-
   async created() {
     const windowData = Object.fromEntries(
       new URL(window.location).searchParams.entries()
@@ -211,39 +206,38 @@ export default {
       }, 5000);
     },
     add() {
-      this.duplicate = false;
       this.filterTickers = "";
       const newTicker = {
         name: this.ticker,
         price: "-",
       };
-      this.tickers.forEach((item) => {
-        if (item.name === this.ticker) this.duplicate = true;
-      });
-      if (this.duplicate === false && this.ticker !== "") {
-        this.tickers.push(newTicker);
+      if (!this.duplicateTicker && this.ticker !== "") {
+        this.tickers = [...this.tickers, newTicker];
+        this.ticker = "";
       }
-      this.ticker = "";
-      localStorage.setItem("cryptonomicon-list", JSON.stringify(this.tickers));
       this.subsribeToTicker(newTicker.name);
     },
     remove(elem) {
       elem === this.selectedTicker ? (this.selectedTicker = null) : false;
       this.tickers = this.tickers.filter((t) => t !== elem);
-      return localStorage.setItem(
-        "cryptonomicon-list",
-        JSON.stringify(this.tickers)
-      );
-    },
-    normalizePriceGraph() {
-      const maxValue = Math.max(...this.priceGraph);
-      const minValue = Math.min(...this.priceGraph);
-      return this.priceGraph?.map(
-        (price) => 5 + ((price - minValue) * 95) / (maxValue - minValue)
-      );
     },
   },
   computed: {
+    duplicateTicker() {
+      return this.tickers.find((t) => t.name === this.ticker);
+    },
+    maxPrice() {
+      return Math.max(...this.priceGraph);
+    },
+    minPrice() {
+      return Math.min(...this.priceGraph);
+    },
+    normalizedPriceGraph() {
+      return this.priceGraph?.map(
+        (price) =>
+          5 + ((price - this.minPrice) * 95) / (this.maxPrice - this.minPrice)
+      );
+    },
     startIndex() {
       return (this.page - 1) * 6;
     },
@@ -261,21 +255,27 @@ export default {
     tickersInPage() {
       return this.filteredTickers.slice(this.startIndex, this.endIndex);
     },
-    addAdviceTokens: function () {
-      let addAdviceTokens = [];
-      if (this.ticker) {
-        let i = 0;
-        Object.values(this.allTokens).forEach((el) => {
-          if (el.toLowerCase().includes(this.ticker.toLowerCase()) && i < 4) {
-            i++;
-            addAdviceTokens.push(el);
-          }
-        });
-      }
-      return addAdviceTokens;
+    adviceTokens() {
+      return Object.values(this.allTokens)
+        .filter((token) => token.includes(this.ticker))
+        .slice(0, 4);
     },
   },
   watch: {
+    selectedTicker() {
+      this.priceGraph = [];
+    },
+    tickers() {
+      return localStorage.setItem(
+        "cryptonomicon-list",
+        JSON.stringify(this.tickers)
+      );
+    },
+    tickersInPage() {
+      if (this.tickersInPage.length === 0 && this.page > 1) {
+        this.page -= 1;
+      }
+    },
     filterTickers() {
       this.page = 1;
       window.history.pushState(
